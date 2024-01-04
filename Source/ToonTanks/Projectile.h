@@ -7,6 +7,7 @@
 #include "Projectile.generated.h"
 
 class USoundBase;
+class UProjectileMovementComponent;
 
 UCLASS()
 class TOONTANKS_API AProjectile : public AActor
@@ -25,15 +26,20 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UProjectileMovementComponent* ProjectileMovementComponent() { return MovementComponent; };
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* Mesh;
 
 	UPROPERTY(VisibleAnywhere)
-	class UProjectileMovementComponent* MovementComponent;
+	UProjectileMovementComponent* MovementComponent;
+
 
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+	float DefaultLaunchForce = 1300.f;
 
 	UPROPERTY(EditDefaultsOnly)
 	float Damage = 50.f;

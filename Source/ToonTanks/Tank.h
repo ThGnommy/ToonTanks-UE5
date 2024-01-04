@@ -23,12 +23,15 @@ public:
 	void HandleDestruction();
 	APlayerController* GetTankPlayerController() const;
 
+	bool IsDead() const { return Dead; }
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
@@ -43,8 +46,25 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float TurnRate = 100.f;
 
+	UPROPERTY()
+	bool Dead = false;
+
 	void Move(float Value);
 	void Turn(float Value);
 
+	void Fire();
+	void LoadFire();
+
 	APlayerController* TankPlayerController;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UFireProgressBar> WidgetFireLoadBarClass;
+
+	UFireProgressBar* WidgetClassRef;
+
+	UUserWidget* LoadWidgetInstance;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UFireProgressBar> WidgetFireLoadBar;
+
 };

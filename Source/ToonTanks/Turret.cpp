@@ -32,7 +32,9 @@ void ATurret::Tick(float DeltaTime)
 
 void ATurret::CheckFireCondition()
 {
-	if (TargetIsInRange())
+	check(Tank);
+
+	if (TargetIsInRange() && !Tank->IsDead())
 	{
 		Fire();
 	}

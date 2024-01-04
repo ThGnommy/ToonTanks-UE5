@@ -6,6 +6,7 @@
 #include <Kismet/GameplayStatics.h>
 #include "Projectile.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 // Sets default values
 ABasePawn::ABasePawn()
@@ -36,11 +37,23 @@ void ABasePawn::RotateTurret(FVector LookAtTarget)
 	TurretMesh->SetWorldRotation(FMath::RInterpTo(TurretMesh->GetComponentRotation(), LookAtRotation, DeltaTime, RotationInterpSpeed));
 }
 
-void ABasePawn::Fire()
+void ABasePawn::Fire(float LaunchForce)
 {
 	FVector ProjectileLocation = ProjectileSpawnPoint->GetComponentLocation();
 	FRotator ProjectileRotation = ProjectileSpawnPoint->GetComponentRotation();
 	auto Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, ProjectileLocation, ProjectileRotation);
+
+	UProjectileMovementComponent* mc = Projectile->ProjectileMovementComponent();
+
+	if (mc)
+	{
+		mc->InitialSpeed *= LaunchForce;
+		mc->MaxSpeed *= LaunchForce;
+		mc->Velocity.Z *= LaunchForce;
+
+		//UE_LOG(LogTemp, Warning, TEXT("LaunchForce InitialSpeed: %f | MaxSpeed: %f"), mc->InitialSpeed, mc->MaxSpeed);
+	}
+
 	Projectile->SetOwner(this);
 }
 

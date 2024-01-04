@@ -2,10 +2,13 @@
 
 
 #include "Tank.h"
+#include "BasePawn.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Logging/StructuredLog.h"
 #include "Kismet/GameplayStatics.h"
+#include "Blueprint/UserWidget.h"
+#include "FireProgressBar.h"
 
 ATank::ATank()
 {
@@ -24,6 +27,11 @@ void ATank::BeginPlay()
 	Super::BeginPlay();
 
 	TankPlayerController = Cast<APlayerController>(GetController());
+
+
+	LoadWidgetInstance = CreateWidget<UFireProgressBar>(GetWorld(), WidgetFireLoadBar);
+	WidgetClassRef = Cast<UFireProgressBar>(WidgetFireLoadBarClass);
+	//LoadWidgetInstance = CreateWidget<UUserWidget>(GetWorld(), WidgetFireLoadBar);
 }
 
 void ATank::Tick(float DeltaTime)
@@ -49,7 +57,8 @@ void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &ATank::Move);
 	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &ATank::Turn);
-	PlayerInputComponent->BindAction(TEXT("Fire"), EInputEvent::IE_Pressed, this, &ATank::Fire);
+	PlayerInputComponent->BindAction(TEXT("Fire"), EInputEvent::IE_Pressed, this, &ATank::LoadFire);
+	PlayerInputComponent->BindAction(TEXT("Fire"), EInputEvent::IE_Released, this, &ATank::Fire);
 }
 
 void ATank::HandleDestruction()
@@ -57,14 +66,18 @@ void ATank::HandleDestruction()
 	Super::HandleDestruction();
 	SetActorHiddenInGame(true);
 	SetActorTickEnabled(false);
+	Dead = true;
+
+	if (LoadWidgetInstance)
+	{
+		LoadWidgetInstance->RemoveFromParent();
+	}
 }
 
 APlayerController* ATank::GetTankPlayerController() const { return TankPlayerController; }
 
 void ATank::Move(float Value)
 {
-	//UE_LOGFMT(LogTemp, Error, "Value: {0}", Value);
-
 	double DeltaTime = UGameplayStatics::GetWorldDeltaSeconds(this);
 	FVector DeltaLocation = FVector::ZeroVector;
 	DeltaLocation.X = Value * Speed * DeltaTime;
@@ -80,4 +93,29 @@ void ATank::Turn(float Value)
 	DeltaRotation.Yaw = Value * DeltaTime * TurnRate;
 
 	AddActorLocalRotation(DeltaRotation, true);
+}
+
+void ATank::Fire()
+{
+
+	float LaunchForce = 0.f;
+
+
+	if (LoadWidgetInstance)
+	{
+		LaunchForce = Cast<UFireProgressBar>(LoadWidgetInstance)->LaunchForce;
+		UE_LOG(LogTemp, Warning, TEXT("LaunchForce from Tank: %f"), LaunchForce);
+		LoadWidgetInstance->RemoveFromParent();
+	}
+
+	Super::Fire(LaunchForce);
+
+}
+
+void ATank::LoadFire()
+{
+	if (LoadWidgetInstance)
+	{
+		LoadWidgetInstance->AddToViewport(1);
+	}
 }
