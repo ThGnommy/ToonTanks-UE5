@@ -15,9 +15,20 @@ class TOONTANKS_API UFireProgressBar : public UUserWidget
 	GENERATED_BODY()
 
 public:
+
+	virtual void NativeConstruct() override;
+	void NativeTick(const FGeometry& MyGeometry, float DeltaTime) override;
+
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	float LaunchForce;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	class UProgressBar* LaunchForceBar;
+	class UProgressBar* LaunchForceProgressBar;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	class UTextBlock* TextPercent;
+
+	void ResetTextBlockColor();
+	void UpdateTextBlockColor(float DeltaTime);
 };
